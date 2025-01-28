@@ -23,6 +23,7 @@ SingleDataType = Dict[
 ]
 
 QueryType = Callable[[Dict[str, Any]], bool]
+FetchQuery = Dict[str, Any]
 IdGeneratorType = Callable[[], str]
 ReturnWithIdType = Dict[
     str, Dict[

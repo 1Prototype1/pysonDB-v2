@@ -3,7 +3,7 @@ import uuid
 from copy import deepcopy
 from pathlib import Path
 from threading import Lock
-from typing import List, Optional, Union
+from typing import List, Dict, Any, Optional, Union
 
 
 try:
@@ -12,7 +12,7 @@ try:
 except ImportError:
     UJSON = False
 
-from pysondb.db_types import DBSchemaType, IdGeneratorType, NewKeyValidTypes, SingleDataType, ReturnWithIdType, QueryType
+from pysondb.db_types import DBSchemaType, IdGeneratorType, NewKeyValidTypes, SingleDataType, ReturnWithIdType, QueryType, FetchQuery
 from pysondb.errors import IdDoesNotExistError, SchemaTypeError, UnknownKeyError, IdAlreadyExistError
 
 
@@ -218,6 +218,21 @@ class PysonDB:
                             new_data[id] = values
 
             return new_data
+
+    def fetch(self, query: FetchQuery = {}) -> List[Dict[str, Any]]:
+        print(query)
+        if not isinstance(query, Dict):
+            raise TypeError(
+                f'"query" must be a Dict and not {type(query)!r}')
+
+        with self.lock:
+            result = []
+            data = self._load_file()['data']
+            for d in data:
+                if all(x in data[d] and data[d][x] == query[x] for x in query):
+                    result.append(data[d])
+
+            return result
 
     def update_by_id(self, id: str, new_data: object) -> SingleDataType:
         if not isinstance(new_data, dict):
