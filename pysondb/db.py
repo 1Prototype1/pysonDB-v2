@@ -3,9 +3,7 @@ import uuid
 from copy import deepcopy
 from pathlib import Path
 from threading import Lock
-from typing import List
-from typing import Optional
-from typing import Union
+from typing import List, Optional, Union
 
 
 try:
@@ -14,15 +12,8 @@ try:
 except ImportError:
     UJSON = False
 
-from pysondb.db_types import DBSchemaType
-from pysondb.db_types import IdGeneratorType
-from pysondb.db_types import NewKeyValidTypes
-from pysondb.db_types import SingleDataType
-from pysondb.db_types import ReturnWithIdType
-from pysondb.db_types import QueryType
-from pysondb.errors import IdDoesNotExistError
-from pysondb.errors import SchemaTypeError
-from pysondb.errors import UnknownKeyError
+from pysondb.db_types import DBSchemaType, IdGeneratorType, NewKeyValidTypes, SingleDataType, ReturnWithIdType, QueryType
+from pysondb.errors import IdDoesNotExistError, SchemaTypeError, UnknownKeyError, IdAlreadyExistError
 
 
 class PysonDB:
@@ -89,7 +80,7 @@ class PysonDB:
     def set_id_generator(self, fn: IdGeneratorType) -> None:
         self._id_generator = fn
 
-    def add(self, data: object) -> str:
+    def add(self, data: object, _id: str = None) -> str:
         if not isinstance(data, dict):
             raise TypeError(f'data must be of type dict and not {type(data)}')
 
@@ -109,7 +100,14 @@ class PysonDB:
                         '(Either the key(s) does not exists in the DB or is missing in the given data)'
                     )
 
-            _id = str(self._id_generator())
+            if not _id:
+                _id = str(self._id_generator())
+
+            # Checking if the id already exists
+            if db_data['data'].get(_id):
+                raise IdAlreadyExistError(
+                    f'{_id!r} already exists in the DB')
+
             if not isinstance(db_data['data'], dict):
                 raise SchemaTypeError(
                     'data key in the db must be of type "dict"')

@@ -6,6 +6,7 @@ import pytest
 from pysondb.db import PysonDB
 from pysondb.errors import SchemaTypeError
 from pysondb.errors import UnknownKeyError
+from pysondb.errors import IdAlreadyExistError
 
 
 TEST_DATA = {
@@ -41,6 +42,10 @@ def test_add_non_empty_file(tmpdir, mocker):
             '1234567': {
                 'age': 18,
                 'name': 'ad'
+            },
+            'abc': {
+                'age': 25,
+                'name': 'xyz'
             }
         }
     }
@@ -51,6 +56,7 @@ def test_add_non_empty_file(tmpdir, mocker):
 
     db = PysonDB(f.strpath)
     assert db.add({'name': 'ad', 'age': 18}) == '1234567'
+    assert db.add({'name': 'xyz', 'age': 25}, _id='abc') == 'abc'
     assert json.loads(f.read()) == final_data
 
 
@@ -98,3 +104,11 @@ def test_add_type_error(tmpdir, data):
     db = PysonDB(f.strpath)
     with pytest.raises(TypeError):
         db.add(data)
+
+def test_add_id_already_exist_error(tmpdir):
+    f = tmpdir.join('test.json')
+    f.write(json.dumps(TEST_DATA))
+
+    db = PysonDB(f.strpath)
+    with pytest.raises(IdAlreadyExistError):
+        db.add({'name': 'john', 'age': 4}, _id='2352346')
