@@ -220,7 +220,6 @@ class PysonDB:
             return new_data
 
     def fetch(self, query: FetchQuery = {}) -> List[Dict[str, Any]]:
-        print(query)
         if not isinstance(query, Dict):
             raise TypeError(
                 f'"query" must be a Dict and not {type(query)!r}')
@@ -230,6 +229,7 @@ class PysonDB:
             data = self._load_file()['data']
             for d in data:
                 if all(x in data[d] and data[d][x] == query[x] for x in query):
+                    data[d]['_id'] = d
                     result.append(data[d])
 
             return result

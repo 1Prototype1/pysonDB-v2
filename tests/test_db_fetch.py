@@ -24,9 +24,9 @@ TEST_DATA = {
 @pytest.mark.parametrize(
     'condition,output',
     [
-        ({'age': 4}, [{'age': 4, 'name': 'mathew_first'}]),
-        ({'name': 'new_user'}, [{'age': 9, 'name': 'new_user'}]),
-        ({}, [{'age': 4, 'name': 'mathew_first'},{'age': 9, 'name': 'new_user'}]),
+        ({'age': 4}, [{'age': 4, 'name': 'mathew_first', '_id': '2352346'}]),
+        ({'name': 'new_user'}, [{'age': 9, 'name': 'new_user', '_id': '1234567'}]),
+        ({}, [{'age': 4, 'name': 'mathew_first', '_id': '2352346'}, {'age': 9, 'name': 'new_user', '_id': '1234567'}]),
         ({'age': 99}, []),
     ]
 )
